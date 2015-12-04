@@ -18,4 +18,4 @@ import Adafruit_TSL2561.Adafruit_TSL2561 as Adafruit_TSL2561
 LightSensor = Adafruit_TSL2561.Adafruit_TSL2651()
 LightSensor.enableAutoGain(True)
 
-print "OK| lux=%d%%;;;;" % (int(LightSensor.calculateAvgLux()))
+print "OK| lux=%d;;;;" % (int(LightSensor.calculateAvgLux()))
