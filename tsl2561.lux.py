@@ -4,7 +4,7 @@
 '''
 This plugin requires the Dataloop agent user to be in the spi and i2c groups or to be run as root.
 
-The Adafruit TSL2561 directory available as part of the Pi 2 Python library from
+The Adafruit TSL2561 directory available as part of the Raspberry Pi Python library from
 
 https://github.com/IainColledge/Adafruit-Raspberry-Pi-Python-Code
 
