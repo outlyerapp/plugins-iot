@@ -31,8 +31,8 @@ Iain Colledge
 import Adafruit_BMP085.Adafruit_BMP085 as Adafruit_BMP085
 
 # Initialise the BMP085 and use STANDARD mode (default value)
-# bmp = Adafruit_BMP085(0x77, debug=True)
-bmp = Adafruit_BMP085(0x77)
+# bmp = BMP085(0x77, debug=True)
+bmp = Adafruit_BMP085.BMP085(0x77)
 
 # To specify a different operating mode, uncomment one of the following:
 # bmp = BMP085(0x77, 0)  # ULTRALOWPOWER Mode
