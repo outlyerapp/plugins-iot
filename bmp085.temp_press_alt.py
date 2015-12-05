@@ -11,7 +11,7 @@ https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code
 It's depreciated for a version that works across the Pi and Beaglebone black but is easier to set up
 with Dataloop so hence interfaced to here.
 
-create a directory, Adafruit_BMP085, in /opt/dataloop/plugins
+Create a directory, Adafruit_BMP085, in /opt/dataloop/plugins
 From the Adafruit_BMP085 directory, copy Adafruit_BMP085.py to /opt/dataloop/plugins/Adafruit_BMP085
 From the Adafruit_I2C directory, copy Adafruit_I2C.py to /opt/dataloop/plugins/Adafruit_BMP085
 Add a blank file __init__.py to /opt/dataloop/plugins/Adafruit_BMP085
@@ -23,7 +23,7 @@ Adafruit_BMP085/Adafruit_I2C.py
 Adafruit_BMP085/Adafruit_BMP085.py
 Adafruit_BMP085/__init__.py
 
-Program comments from Adafruit_BMP_example.py
+Some script comments below from Adafruit_BMP_example.py
 
 Iain Colledge
 '''
@@ -31,14 +31,14 @@ Iain Colledge
 import Adafruit_BMP085.Adafruit_BMP085 as Adafruit_BMP085
 
 # Initialise the BMP085 and use STANDARD mode (default value)
-# bmp = BMP085(0x77, debug=True)
+# bmp = Adafruit_BMP085.BMP085(0x77, debug=True)
 bmp = Adafruit_BMP085.BMP085(0x77)
 
 # To specify a different operating mode, uncomment one of the following:
-# bmp = BMP085(0x77, 0)  # ULTRALOWPOWER Mode
-# bmp = BMP085(0x77, 1)  # STANDARD Mode
-# bmp = BMP085(0x77, 2)  # HIRES Mode
-# bmp = BMP085(0x77, 3)  # ULTRAHIRES Mode
+# bmp = Adafruit_BMP085.BMP085(0x77, 0)  # ULTRALOWPOWER Mode
+# bmp = Adafruit_BMP085.BMP085(0x77, 1)  # STANDARD Mode
+# bmp = Adafruit_BMP085.BMP085(0x77, 2)  # HIRES Mode
+# bmp = Adafruit_BMP085.BMP085(0x77, 3)  # ULTRAHIRES Mode
 
 temp = bmp.readTemperature()
 
@@ -47,6 +47,12 @@ pressure = bmp.readPressure()
 
 # To calculate altitude based on an estimated mean sea level pressure
 # (1013.25 hPa) call the function as follows, but this won't be very accurate
+#
+# The STD pressure of 1013.25 hPa is an approximation but depending on high or low weather pressure will
+# generally be innacurate unless a known sea level pressure for that location is used.
+#
+# You'll also see some noise between readings as barometric altemeters are noisy by nature, especially for such
+# a low cost device.
 #
 # TODO: See if geolocating the IP can be done to find the nearest METAR and machine read local sea level pressure
 altitude = bmp.readAltitude()
