@@ -56,4 +56,4 @@ altitude = bmp.readAltitude()
 # enter 102350 since we include two decimal places in the integer value
 # altitude = bmp.readAltitude(102350)
 
-print "OK| temperature=%.2f°C;;;; pressure=%.2f°hPa;;;; altitude=%.2fm" % (temp, pressure / 100, altitude)
+print "OK| temperature=%.2f°C;;;; pressure=%.2fhPa;;;; altitude=%.2fm" % (temp, pressure / 100, altitude)
