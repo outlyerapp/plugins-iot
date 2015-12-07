@@ -91,7 +91,7 @@ with open('/proc/uptime', 'r') as f:
     uptime = timedelta(seconds = uptime_seconds)
     f.close()
 
-minutes = (uptime % 3600) / 60
+minutes = (uptime.seconds % 3600) / 60
 seconds = (uptime.seconds % 3600) % 60
 
 # Update the surface pressure once per hour since uptime or when the tmp file is created
