@@ -105,8 +105,6 @@ if ((minutes == 59 and seconds < 30) or (not tmp_file())):
         jsondata = json.loads(response.content)
         latitude = jsondata["latitude"]
         longitude = jsondata["longitude"]
-        print latitude
-        print longitude
         # Get the nearest METAR
         response = requests.get(metar_api, params={'lat': latitude, 'lon': longitude, 'format': 'JSON' })
         if (response.status_code == 200):
@@ -146,11 +144,7 @@ pressure = bmp.readPressure()
 # You'll also see some noise between readings as barometric altemeters are noisy by nature, especially for such
 # a low cost device.
 
-print surface_pressure, int(surface_pressure * 100)
-
 altitude = bmp.readAltitude(int(surface_pressure * 100))
-
-print altitude
 
 # To specify a more accurate altitude, enter the correct mean sea level
 # pressure level.  For example, if the current pressure level is 1023.50 hPa
