@@ -29,6 +29,95 @@ Iain Colledge
 '''
 
 import Adafruit_BMP085.Adafruit_BMP085 as Adafruit_BMP085
+import json
+import requests
+from datetime import timedelta
+
+# Persistent cache
+TMPDIR = '/opt/dataloop/tmp'
+TMPFILE = 'bmp085.json'
+
+# IP Address Geolocation API
+geoloc_api = "https://freegeoip.net/json/"
+# METAR API
+metar_api = "http://avwx.rest/api/metar.php"
+# STD surface pressure in hPa
+surface_pressure = 1013
+
+def tmp_file():
+    if not os.path.isdir(TMPDIR):
+        os.makedirs(TMPDIR)
+    if not os.path.isfile(TMPDIR + '/' + TMPFILE):
+        os.mknod(TMPDIR + '/' + TMPFILE)
+        return false
+    else:
+        return true
+
+def get_cache():
+    with open(TMPDIR + '/' + TMPFILE, 'r') as json_fp:
+        try:
+            json_data = json.load(json_fp)
+            json_fp.close()
+        except:
+            print "not a valid json file. rates calculations impossible"
+            json_data = []
+    return json_data
+
+
+def write_cache(cache):
+    with open(TMPDIR + '/' + TMPFILE, 'w') as json_fp:
+        try:
+            json.dump(cache, json_fp)
+            json_fp.close()
+        except Exception, e:
+            print "unable to write cache file, future rates will be hard to calculate"
+
+
+def delete_cache():
+    try:
+        os.remove(TMPDIR + '/' + TMPFILE)
+    except Exception, e:
+        print "failed to delete cache file: %s" % e
+
+
+# Limit the geolocation update to once per hour calculated since bootup as both the geoloc and metar API's are free and can block
+# if used too much and anyway don't want to abuse the service if no need to.
+#
+# Once per hour using uptime is used so as to randomize any requets coming into these APIs from different Pi's
+# around the world.
+
+with open('/proc/uptime', 'r') as f:
+    uptime_seconds = float(f.readline().split()[0])
+    uptime = timedelta(seconds = uptime_seconds)
+    f.close()
+
+minutes = (uptime % 3600) / 60
+seconds = (uptime.seconds % 3600) % 60
+
+# Update the surface pressure once per hour since uptime or when the tmp file is created
+# Should be enough for vehicles like cars or trains, else update every call if in a drone / aircraft
+
+if ((minutes == 59 and seconds < 30) or (not tmp_file())):
+    # Geolocate the IP
+    response = requests.get(geoloc_api)
+    if (response.status_code == 200):
+        jsondata = json.loads(response.content)
+        latitude = jsondata["latitude"]
+        longitude = jsondata["longitude"]
+        # Get the nearest METAR
+        response = requests.get(metar_api, params={'lat': latitude, 'lon': longitude, 'format': 'JSON' })
+        if (response.status_code == 200):
+            jsondata = json.loads(response.content)
+            altimeter = jsondata["Altimeter"]
+            altimeter_units = jsondata["Units"]["Altimeter"]
+            # Convert fom inMg to hPa if inside US
+            if (altimeter_units == "hPa"):
+                surface_pressure = altimeter
+            else:
+                surface_pressure = altimeter * 33.86389
+    write_cache(surface_pressure)
+else:
+    surface_pressure = get_cache()
 
 # Initialise the BMP085 and use STANDARD mode (default value)
 # bmp = Adafruit_BMP085.BMP085(0x77, debug=True)
@@ -53,9 +142,8 @@ pressure = bmp.readPressure()
 #
 # You'll also see some noise between readings as barometric altemeters are noisy by nature, especially for such
 # a low cost device.
-#
-# TODO: See if geolocating the IP can be done to find the nearest METAR and machine read local sea level pressure
-altitude = bmp.readAltitude()
+
+altitude = bmp.readAltitude(int(surface_pressure * 100))
 
 # To specify a more accurate altitude, enter the correct mean sea level
 # pressure level.  For example, if the current pressure level is 1023.50 hPa
