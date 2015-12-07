@@ -50,9 +50,9 @@ def tmp_file():
         os.makedirs(TMPDIR)
     if not os.path.isfile(TMPDIR + '/' + TMPFILE):
         os.mknod(TMPDIR + '/' + TMPFILE)
-        return false
+        return False
     else:
-        return true
+        return True
 
 def get_cache():
     with open(TMPDIR + '/' + TMPFILE, 'r') as json_fp:
