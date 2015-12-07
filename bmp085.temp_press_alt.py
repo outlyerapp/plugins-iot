@@ -31,6 +31,7 @@ Iain Colledge
 import Adafruit_BMP085.Adafruit_BMP085 as Adafruit_BMP085
 import json
 import requests
+import os
 from datetime import timedelta
 
 # Persistent cache
