@@ -62,7 +62,7 @@ def get_cache():
         except:
             print "not a valid json file. rates calculations impossible"
             return surface_pressure
-    return int(json_data[0])
+    return json_data
 
 
 def write_cache(cache):
