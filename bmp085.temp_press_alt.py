@@ -146,7 +146,13 @@ pressure = bmp.readPressure()
 # You'll also see some noise between readings as barometric altemeters are noisy by nature, especially for such
 # a low cost device.
 
+print pressure
+print surface_pressure
+print bmp.readAltitude()
+
 altitude = bmp.readAltitude(int(surface_pressure * 100))
+
+print altitude
 
 # To specify a more accurate altitude, enter the correct mean sea level
 # pressure level.  For example, if the current pressure level is 1023.50 hPa
