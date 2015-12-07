@@ -146,8 +146,8 @@ pressure = bmp.readPressure()
 # You'll also see some noise between readings as barometric altemeters are noisy by nature, especially for such
 # a low cost device.
 
-print pressure
-print surface_pressure
+print bmp.readRawTemp(),pressure
+print surface_pressure, int(surface_pressure * 100)
 print bmp.readAltitude()
 
 altitude = bmp.readAltitude(int(surface_pressure * 100))
