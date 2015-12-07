@@ -111,7 +111,7 @@ if ((minutes == 59 and seconds < 30) or (not tmp_file())):
         response = requests.get(metar_api, params={'lat': latitude, 'lon': longitude, 'format': 'JSON' })
         if (response.status_code == 200):
             jsondata = json.loads(response.content)
-            altimeter = jsondata["Altimeter"]
+            altimeter = int(jsondata["Altimeter"])
             altimeter_units = jsondata["Units"]["Altimeter"]
             # Convert fom inMg to hPa if inside US
             if (altimeter_units == "hPa"):
@@ -146,9 +146,7 @@ pressure = bmp.readPressure()
 # You'll also see some noise between readings as barometric altemeters are noisy by nature, especially for such
 # a low cost device.
 
-print bmp.readRawTemp(),pressure
 print surface_pressure, int(surface_pressure * 100)
-print bmp.readAltitude()
 
 altitude = bmp.readAltitude(int(surface_pressure * 100))
 
