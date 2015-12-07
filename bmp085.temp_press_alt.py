@@ -105,6 +105,8 @@ if ((minutes == 59 and seconds < 30) or (not tmp_file())):
         jsondata = json.loads(response.content)
         latitude = jsondata["latitude"]
         longitude = jsondata["longitude"]
+        print latitude
+        print longitude
         # Get the nearest METAR
         response = requests.get(metar_api, params={'lat': latitude, 'lon': longitude, 'format': 'JSON' })
         if (response.status_code == 200):
