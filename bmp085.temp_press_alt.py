@@ -51,6 +51,8 @@ surface_pressure = 1013
 
 syslog.openlog(logoption=syslog.LOG_DAEMON)
 
+syslog.syslog(syslog.LOG_INFO, "Starting script")
+
 # Reads system uptime and converts into a handy tuple for use in a script
 
 def uptime ():
@@ -77,6 +79,7 @@ def tmp_file():
         return True
 
 def get_cache():
+    syslog.syslog(syslog.LOG_INFO, "Executing get_cache()")
     with open(TMPDIR + '/' + TMPFILE, 'r') as json_fp:
         try:
             json_data = json.load(json_fp)
