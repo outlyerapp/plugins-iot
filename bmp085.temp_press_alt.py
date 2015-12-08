@@ -25,7 +25,10 @@ Adafruit_BMP085/__init__.py
 
 Some script comments below from Adafruit_BMP_example.py
 
-Iain Colledge
+Changelog:
+1.1 Added geolocation with Metars for setting surface pressure and syslogging - Iain Colledge
+1.0 Initial release interfacing to Adafruit BMP085 drivers - Iain Colledge
+
 '''
 
 import Adafruit_BMP085.Adafruit_BMP085 as Adafruit_BMP085
@@ -145,11 +148,11 @@ if ((minutes == 59 and seconds < 30) or (not tmp_file())):
 else:
     surface_pressure = get_cache()
 
-# Initialise the BMP085 and use STANDARD mode (default value)
-# bmp = Adafruit_BMP085.BMP085(0x77, debug=True)
-# bmp = Adafruit_BMP085.BMP085(0x77)
-
-# To specify a different operating mode, uncomment one of the following:
+# Initialise the BMP085
+#
+# To specify different operating mode, uncomment one of the following:
+# bmp = Adafruit_BMP085.BMP085(0x77) # and use STANDARD mode (default value)
+# bmp = Adafruit_BMP085.BMP085(0x77, debug=True) # and use STANDARD mode (default value) with debugging info
 # bmp = Adafruit_BMP085.BMP085(0x77, 0)  # ULTRALOWPOWER Mode
 # bmp = Adafruit_BMP085.BMP085(0x77, 1)  # STANDARD Mode
 # bmp = Adafruit_BMP085.BMP085(0x77, 2)  # HIRES Mode
@@ -167,7 +170,8 @@ pressure = bmp.readPressure()
 # generally be innacurate unless a known sea level pressure for that location is used.
 #
 # You'll also see some noise between readings as barometric altemeters are noisy by nature, especially for such
-# a low cost device.
+# a low cost device and also because METARs are whole numbers why planes use radar altimeters
+# for the last couple of thousand feet
 
 altitude = bmp.readAltitude(int(surface_pressure * 100))
 
