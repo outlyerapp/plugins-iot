@@ -36,6 +36,7 @@ import json
 import requests
 import os
 import syslog
+import logging
 from datetime import timedelta
 
 # Persistent cache
@@ -51,7 +52,9 @@ surface_pressure = 1013
 
 syslog.openlog(logoption=syslog.LOG_DAEMON)
 
-syslog.syslog(syslog.LOG_INFO, "Starting script")
+debug_logger = logging.getLogger("bmp085")
+
+debug_logger.info("Starting script")
 
 # Reads system uptime and converts into a handy tuple for use in a script
 
@@ -79,13 +82,14 @@ def tmp_file():
         return True
 
 def get_cache():
-    syslog.syslog(syslog.LOG_INFO, "Executing get_cache()")
+    debug_logger.info("Executing get_cache()")
     with open(TMPDIR + '/' + TMPFILE, 'r') as json_fp:
         try:
             json_data = json.load(json_fp)
             json_fp.close()
         except Exception, e:
             syslog.syslog(syslog.LOG_ERR, "cache file " + TMPDIR + "/" + TMPFILE + " is unreadable: " + str(e))
+            debug_logger.info("cache file " + TMPDIR + "/" + TMPFILE + " is unreadable: " + str(e))
             return surface_pressure
     return json_data
 
@@ -97,6 +101,7 @@ def write_cache(cache):
             json_fp.close()
         except Exception, e:
             syslog.syslog(syslog.LOG_ERR, "unable to write to cache file " + TMPDIR + "/" + TMPFILE + ": " + str(e))
+            debug_logger.info("unable to write to cache file " + TMPDIR + "/" + TMPFILE + ": " + str(e))
 
 
 def delete_cache():
@@ -118,10 +123,10 @@ days, hours, minutes, seconds, microseconds = uptime()
 
 existing_tmp_file = tmp_file()
 
-syslog.syslog(syslog.LOG_INFO, "Existing tmp file " + str(existing_tmp_file))
+debug_logger.info("Existing tmp file " + str(existing_tmp_file))
 
 if ((minutes == 59 and seconds < 30) or (not existing_tmp_file)):
-    syslog.syslog(syslog.LOG_INFO, "Getting the surface pressure from APIs")
+    debug_logger.info("Getting the surface pressure from APIs")
     # Geolocate the IP
     try:
         response = requests.get(geoloc_api)
@@ -148,17 +153,20 @@ if ((minutes == 59 and seconds < 30) or (not existing_tmp_file)):
                                "hPa set for lat:" + str(latitude) + ", lon:" + str(longitude) +
                                " using METAR from " + station + " at " + metar_time + " time")
                     syslog.syslog(syslog.LOG_INFO, message)
+                    debug_logger.info(message)
             except Exception, e:
                 syslog.syslog(syslog.LOG_WARNING, "unable to get METAR for lat: " + str(latitude) + ", lon:" + str(longitude) + " : " + str(e))
-        syslog.syslog(syslog.LOG_INFO, "Writing the surface pressure to the cache")
+                debug_logger.info("unable to get METAR for lat: " + str(latitude) + ", lon:" + str(longitude) + " : " + str(e))
+        debug_logger.info("Writing the surface pressure to the cache")
         write_cache(surface_pressure)
     except Exception, e:
         syslog.syslog(syslog.LOG_WARNING, "unable to get lat, long coords : " + str(e))
+        debug_logger.info("unable to get lat, long coords : " + str(e))
 else:
-    syslog.syslog(syslog.LOG_INFO, "Reading the surface pressure from the cache")
+    debug_logger.info("Reading the surface pressure from the cache")
     surface_pressure = get_cache()
 
-syslog.syslog(syslog.LOG_INFO, "Cache logging and Surface pressure done " + str(surface_pressure) + "hPa")
+debug_logger.info("Cache logging and Surface pressure done " + str(surface_pressure) + "hPa, end of script")
 
 # Initialise the BMP085
 #
