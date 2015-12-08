@@ -32,6 +32,7 @@ import Adafruit_BMP085.Adafruit_BMP085 as Adafruit_BMP085
 import json
 import requests
 import os
+import syslog
 from datetime import timedelta
 
 # Persistent cache
@@ -44,6 +45,24 @@ geoloc_api = "https://freegeoip.net/json/"
 metar_api = "http://avwx.rest/api/metar.php"
 # STD surface pressure in hPa
 surface_pressure = 1013
+
+syslog.openlog(logoption=syslog.LOG_DAEMON)
+
+# Reads system uptime and converts into a handy tuple for use in a script
+
+def uptime ():
+    with open('/proc/uptime', 'r') as f:
+        uptime_seconds = float(f.readline().split()[0])
+        uptime = timedelta(seconds = uptime_seconds)
+        f.close()
+
+    days = (uptime.days)
+    hours = (uptime.seconds / 3600)
+    minutes = (uptime.seconds % 3600) / 60
+    seconds = (uptime.seconds % 3600) % 60
+    microseconds = (uptime.microseconds)
+
+    return days, hours, minutes, seconds, microseconds
 
 def tmp_file():
     if not os.path.isdir(TMPDIR):
@@ -87,13 +106,7 @@ def delete_cache():
 # Once per hour using uptime is used so as to randomize any requets coming into these APIs from different Pi's
 # around the world.
 
-with open('/proc/uptime', 'r') as f:
-    uptime_seconds = float(f.readline().split()[0])
-    uptime = timedelta(seconds = uptime_seconds)
-    f.close()
-
-minutes = (uptime.seconds % 3600) / 60
-seconds = (uptime.seconds % 3600) % 60
+days, hours, minutes, seconds, microseconds = uptime()
 
 # Update the surface pressure once per hour since uptime or when the tmp file is created
 # Should be enough for vehicles like cars or trains, else update every call if in a drone / aircraft
@@ -111,24 +124,27 @@ if ((minutes == 59 and seconds < 30) or (not tmp_file())):
             jsondata = json.loads(response.content)
             altimeter = int(jsondata["Altimeter"])
             altimeter_units = jsondata["Units"]["Altimeter"]
+            station = jsondata["Station"]
+            metar_time = jsondata["Time"]
             # Convert fom inMg to hPa if inside US
             if (altimeter_units == "hPa"):
                 surface_pressure = altimeter
             else:
                 surface_pressure = altimeter * 33.86389
+            syslog.syslog(syslog.LOG_INFO,"at uptime " + days + ":" + hours + ":" + minutes + ":" + seconds + " surface pressure " + surface_pressure + "hPa set for lat:" + latitude + ", lon:" + longitude + " from " + station + " at " + metar_time + " time")
     write_cache(surface_pressure)
 else:
     surface_pressure = get_cache()
 
 # Initialise the BMP085 and use STANDARD mode (default value)
 # bmp = Adafruit_BMP085.BMP085(0x77, debug=True)
-bmp = Adafruit_BMP085.BMP085(0x77)
+# bmp = Adafruit_BMP085.BMP085(0x77)
 
 # To specify a different operating mode, uncomment one of the following:
 # bmp = Adafruit_BMP085.BMP085(0x77, 0)  # ULTRALOWPOWER Mode
 # bmp = Adafruit_BMP085.BMP085(0x77, 1)  # STANDARD Mode
 # bmp = Adafruit_BMP085.BMP085(0x77, 2)  # HIRES Mode
-# bmp = Adafruit_BMP085.BMP085(0x77, 3)  # ULTRAHIRES Mode
+bmp = Adafruit_BMP085.BMP085(0x77, 3)  # ULTRAHIRES Mode
 
 temp = bmp.readTemperature()
 
