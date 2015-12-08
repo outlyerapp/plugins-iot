@@ -112,30 +112,36 @@ days, hours, minutes, seconds, microseconds = uptime()
 
 if ((minutes == 59 and seconds < 30) or (not tmp_file())):
     # Geolocate the IP
-    response = requests.get(geoloc_api)
-    if (response.status_code == 200):
-        jsondata = json.loads(response.content)
-        latitude = jsondata["latitude"]
-        longitude = jsondata["longitude"]
-        # Get the nearest METAR
-        response = requests.get(metar_api, params={'lat': latitude, 'lon': longitude, 'format': 'JSON' })
+    try:
+        response = requests.get(geoloc_api)
         if (response.status_code == 200):
             jsondata = json.loads(response.content)
-            altimeter = int(jsondata["Altimeter"])
-            altimeter_units = jsondata["Units"]["Altimeter"]
-            station = jsondata["Station"]
-            metar_time = jsondata["Time"]
-            # Convert fom inMg to hPa if inside US
-            if (altimeter_units == "hPa"):
-                surface_pressure = altimeter
-            else:
-                surface_pressure = altimeter * 33.86389
-            message = ("at uptime " + str(days) + ":" + str(hours) + ":" + str(minutes) + ":" + str(seconds) +
-                       " surface pressure " + str(surface_pressure) +
-                       "hPa set for lat:" + str(latitude) + ", lon:" + str(longitude) +
-                       " using METAR from " + station + " at " + metar_time + " time")
-            syslog.syslog(syslog.LOG_INFO, message)
-    write_cache(surface_pressure)
+            latitude = jsondata["latitude"]
+            longitude = jsondata["longitude"]
+            try:
+                # Get the nearest METAR
+                response = requests.get(metar_api, params={'lat': latitude, 'lon': longitude, 'format': 'JSON' })
+                if (response.status_code == 200):
+                    jsondata = json.loads(response.content)
+                    altimeter = int(jsondata["Altimeter"])
+                    altimeter_units = jsondata["Units"]["Altimeter"]
+                    station = jsondata["Station"]
+                    metar_time = jsondata["Time"]
+                    # Convert fom inMg to hPa if inside US
+                    if (altimeter_units == "hPa"):
+                        surface_pressure = altimeter
+                    else:
+                        surface_pressure = altimeter * 33.86389
+                    message = ("at uptime " + str(days) + ":" + str(hours) + ":" + str(minutes) + ":" + str(seconds) +
+                               " surface pressure " + str(surface_pressure) +
+                               "hPa set for lat:" + str(latitude) + ", lon:" + str(longitude) +
+                               " using METAR from " + station + " at " + metar_time + " time")
+                    syslog.syslog(syslog.LOG_INFO, message)
+            except Exception, e:
+                syslog.syslog(syslog.LOG_WARNING, "unable to get METAR for lat: " + str(latitude) + ", lon:" + str(longitude) + " : " + str(e))
+        write_cache(surface_pressure)
+    except Exception, e:
+        syslog.syslog(syslog.LOG_WARNING, "unable to get lat, long coords : " + str(e))
 else:
     surface_pressure = get_cache()
 
