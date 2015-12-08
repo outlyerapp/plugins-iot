@@ -114,7 +114,8 @@ days, hours, minutes, seconds, microseconds = uptime()
 # Should be enough for vehicles like cars or trains, else update every call if in a drone / aircraft
 
 existing_tmp_file = tmp_file()
-print ("Existing tmp file" + str(existing_tmp_file))
+
+syslog.syslog(syslog.LOG_INFO, "Existing tmp file " + str(existing_tmp_file))
 
 if ((minutes == 59 and seconds < 30) or (not existing_tmp_file)):
     # Geolocate the IP
