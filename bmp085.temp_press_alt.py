@@ -132,6 +132,7 @@ if ((minutes == 59 and seconds < 30) or (not tmp_file())):
             else:
                 surface_pressure = altimeter * 33.86389
             message = "at uptime ", days, ":", hours, ":", minutes, ":", seconds, " surface pressure ", surface_pressure, "hPa set for lat:", latitude, ", lon:", longitude, " using METAR from ", station, " at ", metar_time, " time"
+            print message
             syslog.syslog(syslog.LOG_INFO, message)
     write_cache(surface_pressure)
 else:
