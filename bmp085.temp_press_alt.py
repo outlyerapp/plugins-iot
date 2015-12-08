@@ -79,7 +79,7 @@ def get_cache():
             json_data = json.load(json_fp)
             json_fp.close()
         except:
-            print "not a valid json file. rates calculations impossible"
+            syslog.syslog(syslog.LOG_ERR, "cache file " + TMPDIR + "/" + TMPFILE + " is unreadable")
             return surface_pressure
     return json_data
 
@@ -90,15 +90,14 @@ def write_cache(cache):
             json.dump(cache, json_fp)
             json_fp.close()
         except Exception, e:
-            print "unable to write cache file, future rates will be hard to calculate"
+            syslog.syslog(syslog.LOG_ERR, "unable to write to cache file " + TMPDIR + "/" + TMPFILE)
 
 
 def delete_cache():
     try:
         os.remove(TMPDIR + '/' + TMPFILE)
     except Exception, e:
-        print "failed to delete cache file: %s" % e
-
+        syslog.syslog(syslog.LOG_ERR, "failed to delete cache file " + TMPDIR + "/" + TMPFILE + ": " + str(e))
 
 # Limit the geolocation update to once per hour calculated since bootup as both the geoloc and metar API's are free and can block
 # if used too much and anyway don't want to abuse the service if no need to.
@@ -131,8 +130,10 @@ if ((minutes == 59 and seconds < 30) or (not tmp_file())):
                 surface_pressure = altimeter
             else:
                 surface_pressure = altimeter * 33.86389
-            message = "at uptime " + str(days) + ":" + str(hours) + ":" + str(minutes) + ":" + str(seconds) + " surface pressure " + str(surface_pressure) + "hPa set for lat:" + str(latitude) + ", lon:" + str(longitude) + " using METAR from " + station + " at " + metar_time + " time"
-            print message
+            message = ("at uptime " + str(days) + ":" + str(hours) + ":" + str(minutes) + ":" + str(seconds) +
+                       " surface pressure " + str(surface_pressure) +
+                       "hPa set for lat:" + str(latitude) + ", lon:" + str(longitude) +
+                       " using METAR from " + station + " at " + metar_time + " time")
             syslog.syslog(syslog.LOG_INFO, message)
     write_cache(surface_pressure)
 else:
