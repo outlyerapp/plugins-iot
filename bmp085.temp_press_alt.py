@@ -118,6 +118,7 @@ existing_tmp_file = tmp_file()
 syslog.syslog(syslog.LOG_INFO, "Existing tmp file " + str(existing_tmp_file))
 
 if ((minutes == 59 and seconds < 30) or (not existing_tmp_file)):
+    syslog.syslog(syslog.LOG_INFO, "Getting the surface pressure from APIs")
     # Geolocate the IP
     try:
         response = requests.get(geoloc_api)
@@ -146,11 +147,15 @@ if ((minutes == 59 and seconds < 30) or (not existing_tmp_file)):
                     syslog.syslog(syslog.LOG_INFO, message)
             except Exception, e:
                 syslog.syslog(syslog.LOG_WARNING, "unable to get METAR for lat: " + str(latitude) + ", lon:" + str(longitude) + " : " + str(e))
+        syslog.syslog(syslog.LOG_INFO, "Writing the surface pressure to the cache")
         write_cache(surface_pressure)
     except Exception, e:
         syslog.syslog(syslog.LOG_WARNING, "unable to get lat, long coords : " + str(e))
 else:
+    syslog.syslog(syslog.LOG_INFO, "Reading the surface pressure from the cache")
     surface_pressure = get_cache()
+
+syslog.syslog(syslog.LOG_INFO, "Cache logging and Surface pressure done " + str(surface_pressure) + "hPa")
 
 # Initialise the BMP085
 #
