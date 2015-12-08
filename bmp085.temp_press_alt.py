@@ -18,7 +18,7 @@ Add a blank file __init__.py to /opt/dataloop/plugins/Adafruit_BMP085
 
 The file structure should look in /opt/dataloop/plugins like
 
-tsl2561.lux.py
+bmp085.temp_press_alt.py
 Adafruit_BMP085/Adafruit_I2C.py
 Adafruit_BMP085/Adafruit_BMP085.py
 Adafruit_BMP085/__init__.py
