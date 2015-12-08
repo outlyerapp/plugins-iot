@@ -78,8 +78,8 @@ def get_cache():
         try:
             json_data = json.load(json_fp)
             json_fp.close()
-        except:
-            syslog.syslog(syslog.LOG_ERR, "cache file " + TMPDIR + "/" + TMPFILE + " is unreadable")
+        except Exception, e:
+            syslog.syslog(syslog.LOG_ERR, "cache file " + TMPDIR + "/" + TMPFILE + " is unreadable: " + str(e))
             return surface_pressure
     return json_data
 
@@ -90,7 +90,7 @@ def write_cache(cache):
             json.dump(cache, json_fp)
             json_fp.close()
         except Exception, e:
-            syslog.syslog(syslog.LOG_ERR, "unable to write to cache file " + TMPDIR + "/" + TMPFILE)
+            syslog.syslog(syslog.LOG_ERR, "unable to write to cache file " + TMPDIR + "/" + TMPFILE + ": " + str(e))
 
 
 def delete_cache():
