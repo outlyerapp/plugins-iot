@@ -167,4 +167,6 @@ altitude = bmp.readAltitude(int(surface_pressure * 100))
 # enter 102350 since we include two decimal places in the integer value
 # altitude = bmp.readAltitude(102350)
 
+syslog.closelog()
+
 print "OK| temperature=%.2f°C;;;; pressure=%.2fhPa;;;; altitude=%.2fm" % (temp, pressure / 100, altitude)
