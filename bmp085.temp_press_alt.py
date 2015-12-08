@@ -113,7 +113,10 @@ days, hours, minutes, seconds, microseconds = uptime()
 # Update the surface pressure once per hour since uptime or when the tmp file is created
 # Should be enough for vehicles like cars or trains, else update every call if in a drone / aircraft
 
-if ((minutes == 59 and seconds < 30) or (not tmp_file())):
+existing_tmp_file = tmp_file()
+print ("Existing tmp file" + str(existing_tmp_file))
+
+if ((minutes == 59 and seconds < 30) or (not existing_tmp_file)):
     # Geolocate the IP
     try:
         response = requests.get(geoloc_api)
