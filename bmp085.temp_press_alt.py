@@ -26,6 +26,7 @@ Adafruit_BMP085/__init__.py
 Some script comments below from Adafruit_BMP_example.py
 
 Changelog:
+1.11 Always have the last know good surface pressure used instead of default of 1013 in case of METAR failure
 1.1 Added geolocation with Metars for setting surface pressure and syslogging - Iain Colledge
 1.0 Initial release interfacing to Adafruit BMP085 drivers - Iain Colledge
 
@@ -77,6 +78,7 @@ def tmp_file():
     else:
         return True
 
+# Returns the cached surface pressure or the default if unable to do so
 def get_cache():
     with open(TMPDIR + '/' + TMPFILE, 'r') as json_fp:
         try:
@@ -145,6 +147,8 @@ if ((minutes == 59 and seconds < 30) or (not existing_tmp_file)):
                     print(message)
             except Exception, e:
                 syslog.syslog(syslog.LOG_WARNING, "unable to get METAR for lat: " + str(latitude) + ", lon:" + str(longitude) + " : " + str(e))
+                # Use the last known good for surface pressure for the next time period
+                surface_pressure = get_cache()
         write_cache(surface_pressure)
     except Exception, e:
         syslog.syslog(syslog.LOG_WARNING, "unable to get lat, long coords : " + str(e))
