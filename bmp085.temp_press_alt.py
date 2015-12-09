@@ -26,8 +26,9 @@ Adafruit_BMP085/__init__.py
 Some script comments below from Adafruit_BMP_example.py
 
 Changelog:
-1.11 Always have the last know good surface pressure used instead of default of 1013 in case of METAR failure
-1.1 Added geolocation with Metars for setting surface pressure and syslogging - Iain Colledge
+1.12 Added sea level presure to outputs and changed references to surface pressure to sea level pressure. - Iain Colledge
+1.11 Always have the last know good sea level pressure used instead of default of 1013 in case of METAR failure. - Iain Colledge
+1.1 Added geolocation with Metars for setting sea level pressure and syslogging - Iain Colledge
 1.0 Initial release interfacing to Adafruit BMP085 drivers - Iain Colledge
 
 '''
@@ -48,8 +49,8 @@ TMPFILE = 'bmp085.json'
 geoloc_api = "https://freegeoip.net/json/"
 # METAR API
 metar_api = "http://avwx.rest/api/metar.php"
-# STD surface pressure in hPa
-surface_pressure = 1013
+# STD sea level pressure in hPa
+sea_level_pressure = 1013
 
 syslog.openlog(logoption=syslog.LOG_DAEMON)
 
@@ -78,7 +79,7 @@ def tmp_file():
     else:
         return True
 
-# Returns the cached surface pressure or the default if unable to do so
+# Returns the cached sea level pressure or the default if unable to do so
 def get_cache():
     with open(TMPDIR + '/' + TMPFILE, 'r') as json_fp:
         try:
@@ -86,7 +87,7 @@ def get_cache():
             json_fp.close()
         except Exception, e:
             syslog.syslog(syslog.LOG_ERR, "cache file " + TMPDIR + "/" + TMPFILE + " is unreadable: " + str(e))
-            return surface_pressure
+            return sea_level_pressure
     return json_data
 
 
@@ -112,7 +113,7 @@ def delete_cache():
 
 days, hours, minutes, seconds, microseconds = uptime()
 
-# Update the surface pressure once per hour since uptime or when the tmp file is created
+# Update the sea level pressure once per hour since uptime or when the tmp file is created
 # Should be enough for vehicles like cars or trains, else update every call if in a drone / aircraft
 
 existing_tmp_file = tmp_file()
@@ -136,24 +137,24 @@ if ((minutes == 59 and seconds < 30) or (not existing_tmp_file)):
                     metar_time = jsondata["Time"]
                     # Convert fom inMg to hPa if inside US
                     if (altimeter_units == "hPa"):
-                        surface_pressure = altimeter
+                        sea_level_pressure = altimeter
                     else:
-                        surface_pressure = altimeter * 33.86389
+                        sea_level_pressure = altimeter * 33.86389
                     message = ("at uptime " + str(days) + ":" + str(hours) + ":" + str(minutes) + ":" + str(seconds) +
-                               " surface pressure " + str(surface_pressure) +
+                               " sea level pressure " + str(sea_level_pressure) +
                                "hPa set for lat:" + str(latitude) + ", lon:" + str(longitude) +
                                " using METAR from " + station + " at " + metar_time + " time")
                     syslog.syslog(syslog.LOG_INFO, message)
                     print(message)
             except Exception, e:
                 syslog.syslog(syslog.LOG_WARNING, "unable to get METAR for lat: " + str(latitude) + ", lon:" + str(longitude) + " : " + str(e))
-                # Use the last known good for surface pressure for the next time period
-                surface_pressure = get_cache()
-        write_cache(surface_pressure)
+                # Use the last known good for sea level pressure for the next time period
+                sea_level_pressure = get_cache()
+        write_cache(sea_level_pressure)
     except Exception, e:
         syslog.syslog(syslog.LOG_WARNING, "unable to get lat, long coords : " + str(e))
 else:
-    surface_pressure = get_cache()
+    sea_level_pressure = get_cache()
 
 # Initialise the BMP085
 #
@@ -180,7 +181,7 @@ pressure = bmp.readPressure()
 # a low cost device and also because METARs are whole numbers why planes use radar altimeters
 # for the last couple of thousand feet
 
-altitude = bmp.readAltitude(int(surface_pressure * 100))
+altitude = bmp.readAltitude(int(sea_level_pressure * 100))
 
 # To specify a more accurate altitude, enter the correct mean sea level
 # pressure level.  For example, if the current pressure level is 1023.50 hPa
@@ -189,4 +190,4 @@ altitude = bmp.readAltitude(int(surface_pressure * 100))
 
 syslog.closelog()
 
-print "OK| temperature=%.2f°C;;;; pressure=%.2fhPa;;;; altitude=%.2fm" % (temp, pressure / 100, altitude)
+print "OK| temperature=%.2f°C;;;; pressure=%.2fhPa;;;; sea_level_pressure=%dhPa;;;; altitude=%.2fm;;;;" % (temp, pressure / 100, sea_level_pressure, altitude)
