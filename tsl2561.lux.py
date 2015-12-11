@@ -18,6 +18,9 @@ Adafruit_TSL2561/Adafruit_I2C.py
 Adafruit_TSL2561/Adafruit_TSL2561.py
 Adafruit_TSL2561/__init__.py
 
+Changelog:
+1.0 Initial release - Iain Colledge
+
 Iain Colledge
 '''
 
