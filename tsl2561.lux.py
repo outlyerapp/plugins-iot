@@ -26,4 +26,11 @@ import Adafruit_TSL2561.Adafruit_TSL2561 as Adafruit_TSL2561
 LightSensor = Adafruit_TSL2561.AdafruitTSL2561()
 LightSensor.enable_auto_gain(True)
 
-print "OK| lux=%d;;;;" % (int(LightSensor.calculate_avg_lux()))
+
+try:
+    lux = int(LightSensor.calculate_avg_lux())
+except OverflowError as e:
+    # Peg at max value possible
+    lux = 65535
+
+print "OK| lux=%d;;;;" % (lux)
