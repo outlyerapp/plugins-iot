@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=latin1
 
-'''
+"""
 This plugin requires the Dataloop agent user to be in the spi and i2c groups or to be run as root.
 
 The Adafruit BMP085 directory available as part of the Raspberry Pi Python library from
@@ -31,7 +31,7 @@ Changelog:
 1.1 Added geolocation with Metars for setting sea level pressure and syslogging - Iain Colledge
 1.0 Initial release interfacing to Adafruit BMP085 drivers - Iain Colledge
 
-'''
+"""
 
 import Adafruit_BMP085.Adafruit_BMP085 as Adafruit_BMP085
 import json
@@ -54,23 +54,31 @@ sea_level_pressure = 1013
 
 syslog.openlog(logoption=syslog.LOG_DAEMON)
 
-# Reads system uptime and converts into a handy tuple for use in a script
-
 def uptime ():
+    """
+    Reads system uptime and converts into a handy tuple for use in a script
+
+    :return: tuple of uptime broken down into the days, hours, minutes, seconds, microseconds since start
+    """
     with open('/proc/uptime', 'r') as f:
         uptime_seconds = float(f.readline().split()[0])
         uptime = timedelta(seconds = uptime_seconds)
         f.close()
 
-    days = (uptime.days)
-    hours = (uptime.seconds / 3600)
+    days = uptime.days
+    hours = uptime.seconds / 3600
     minutes = (uptime.seconds % 3600) / 60
     seconds = (uptime.seconds % 3600) % 60
-    microseconds = (uptime.microseconds)
+    microseconds = uptime.microseconds
 
     return days, hours, minutes, seconds, microseconds
 
 def tmp_file():
+    """
+    Creates a temporay persistence file
+
+    :return: True if already existed, False if not
+    """
     if not os.path.isdir(TMPDIR):
         os.makedirs(TMPDIR)
     if not os.path.isfile(TMPDIR + '/' + TMPFILE):
@@ -79,8 +87,12 @@ def tmp_file():
     else:
         return True
 
-# Returns the cached sea level pressure or the default if unable to do so
 def get_cache():
+    """
+    Returns the cached sea level pressure or the default if unable to do so
+
+    :return:
+    """
     with open(TMPDIR + '/' + TMPFILE, 'r') as json_fp:
         try:
             json_data = json.load(json_fp)
@@ -92,6 +104,11 @@ def get_cache():
 
 
 def write_cache(cache):
+    """
+    Writes the parameter as a JSON formatted cache value
+
+    :param cache: object to be cached
+    """
     with open(TMPDIR + '/' + TMPFILE, 'w') as json_fp:
         try:
             json.dump(cache, json_fp)
@@ -100,6 +117,10 @@ def write_cache(cache):
             syslog.syslog(syslog.LOG_ERR, "unable to write to cache file " + TMPDIR + "/" + TMPFILE + ": " + str(e))
 
 def delete_cache():
+    """
+    Deletes the tempory cache file
+    
+    """
     try:
         os.remove(TMPDIR + '/' + TMPFILE)
     except Exception, e:
