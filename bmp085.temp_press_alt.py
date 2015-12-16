@@ -26,19 +26,19 @@ Adafruit_BMP085/__init__.py
 Some script comments below from Adafruit_BMP_example.py
 
 Changelog:
-1.12 Added sea level presure to outputs and changed references to surface pressure to sea level pressure. - Iain Colledge
-1.11 Always have the last know good sea level pressure used instead of default of 1013 in case of METAR failure. - Iain Colledge
+1.12 Added sea level presure to outputs, changed references to surface pressure to sea level pressure. - Iain Colledge
+1.11 Use last know good sea level pressure instead of default of 1013 in case of METAR failure. - Iain Colledge
 1.1 Added geolocation with Metars for setting sea level pressure and syslogging - Iain Colledge
 1.0 Initial release interfacing to Adafruit BMP085 drivers - Iain Colledge
 
 """
 
+import logging
 import Adafruit_BMP085.Adafruit_BMP085 as Adafruit_BMP085
 import json
 import requests
 import os
 import syslog
-import logging
 from datetime import timedelta
 
 # Persistent cache
@@ -54,7 +54,8 @@ sea_level_pressure = 1013
 
 syslog.openlog(logoption=syslog.LOG_DAEMON)
 
-def uptime ():
+
+def uptime():
     """
     Reads system uptime and converts into a handy tuple for use in a script
 
@@ -119,7 +120,7 @@ def write_cache(cache):
 def delete_cache():
     """
     Deletes the tempory cache file
-    
+
     """
     try:
         os.remove(TMPDIR + '/' + TMPFILE)
