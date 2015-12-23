@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # coding=latin1
 
-'''
+"""
 This plugin requires the Dataloop agent to be run as root
 Update: /lib/systemd/system/dataloop-agent.service and set User=root
 Run: systemctl restart dataloop-agent
-'''
+"""
 
 import RPi.GPIO as GPIO
 import time
 
-CHANNEL = 4 # BMC pin number
+CHANNEL = 4  # BMC pin number
 
 bits = [1] * 41
 
@@ -27,7 +27,7 @@ def read_bit():
 
 
 def bits_to_int(bits):
-    binary_string = ("").join([str(x) for x in bits])
+    binary_string = "".join([str(x) for x in bits])
     return int(binary_string, 2)
 
 
@@ -50,7 +50,7 @@ if bits[0] != 1:
     raise Exception("Invalid transmission beginning")
 bits = bits[1:]
 
-decoded = [bits_to_int(bits[(i * 8):((i + 1)* 8)]) for i in range(0, len(bits)/8)]
+decoded = [bits_to_int(bits[(i * 8):((i + 1) * 8)]) for i in range(0, len(bits) / 8)]
 
 cksum = 0
 for i in range(0, 4):
@@ -58,5 +58,4 @@ for i in range(0, 4):
 if decoded[4] != cksum % 256:
     raise Exception("Invalid check sum")
 
-print "OK| humidity=%d%%;;;; temperature=%dÂ°C;;;;" % (decoded[0], decoded[2])
-
+print "OK| humidity=%d%%;;;; temperature=%d°C;;;;" % (decoded[0], decoded[2])
