@@ -26,7 +26,7 @@ Iain Colledge
 
 import Adafruit_TSL2561.Adafruit_TSL2561 as Adafruit_TSL2561
 
-LightSensor = Adafruit_TSL2561.AdafruitTSL2561()
+LightSensor = Adafruit_TSL2561.Adafruit_TSL2561()
 LightSensor.enable_auto_gain(True)
 
 try:
